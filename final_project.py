@@ -115,7 +115,7 @@ def Cashflow_statement_adjust(Cashflow_statement, IE= 1, IG= 1, DE=1, DG = 1):
 x = Cashflow_statement_adjust(Cashflow_statement)
 
 print(x)
-print(	Cashflow_statement_adjust(Cashflow_statement,0,0,0,0) )
+
 
 
 
