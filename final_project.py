@@ -30,22 +30,11 @@ def get_statements(year, season, stock_number) :
 	for i in range(len(df_list)):
 		df_list[i] = df_list[i].dropna(axis=0,how='any') 
 		df_list[i] = df_list[i].reset_index(drop=True) 
-
+		df_list[i] = df_list[i].iloc[:,0:2]
+		df_list[i].columns = ['item', 'now']
 		
 # 0:資產負債表 1:損益表 2:現金流量表
 	pd.set_option('display.max_rows', None)
-	
-	
-	df_list[0] = df_list[0].iloc[:,0:4]
-	df_list[0].columns = ['item', 'now','2', 'past']
-	df_list[0] = df_list[0].drop(columns="2")
-	df_list[1] = df_list[1].iloc[:,0:2]
-	df_list[1].columns = ['item', 'now']
-	
-	df_list[2] = df_list[2].iloc[:,0:2]
-	df_list[2].columns = ['item', 'now']
-
-	
 	return df_list		#傳回3個panal data (三張表)
 
 
@@ -128,12 +117,30 @@ def Cashflow_statement_adjust(Cashflow_statement, IE= 1, IG= 1, DE=1, DG = 1):
 
 
 
-
 BalanceSheet, income_statement, Cashflow_statement = get_statements( 2013, 1, 1101)
 
-print(BalanceSheet)
-print(income_statement)
-print(Cashflow_statement)
+
+
+
+
+equity =  int( ( BalanceSheet[BalanceSheet.item == '權益總額'] ).values[0][1] )
+NI =  int ( ( income_statement[income_statement.item == '本期綜合損益總額'] ).values[0][1] )
+ROE = NI/equity
+print(ROE)
+
+EBIT = int( ( income_statement[income_statement.item == '稅前淨利（淨損）'] ).values[0][1] )
+TA = int( ( BalanceSheet[BalanceSheet.item == '資產總額'] ).values[0][1]
+CA = int( ( BalanceSheet[BalanceSheet.item == '流動資產合計'] ).values[0][1]
+CL = int( ( BalanceSheet[BalanceSheet.item == '流動負債合計'] ).values[0][1]
+NWC = CA - CL
+Sales = int( ( income_statement[income_statement.item == '營業收入合計'] ).values[0][1] )
+Common_stock = int( ( BalanceSheet[BalanceSheet.item == '普通股股本'] ).values[0][1]
+Stock_price = #大神教我怎麼爬資料QQ
+MVE = Common_stock / Stock_price
+TD = int( ( BalanceSheet[BalanceSheet.item == '負債總額'] ).values[0][1]
+ARE = int( ( BalanceSheet[BalanceSheet.item == '保留盈餘合計'] ).values[0][1]
+z = 3.3 * (EBIT / TA) + 1.2 * (NWC / TA) + 1.0 * (Sales / TA) + 0.6 * (MVE / TD) + 1.4 * (ARE / TA)
+print(z)
 
 
 
