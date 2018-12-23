@@ -23,10 +23,12 @@ def get_statements(year, season, stock_number) :
 
 # 篩選出資產負債表、損益表、現金流量表
 	df_list = []
+	
 	for df in html_df :
 		if df.values[0][0] == '會計項目':
 			df_list.append(df)
-        
+			
+	df_list = df_list[0:3]
 	for i in range(len(df_list)):
 		df_list[i] = df_list[i].dropna(axis=0,how='any') 
 		df_list[i] = df_list[i].reset_index(drop=True) 
@@ -137,8 +139,8 @@ print(Cashflow_statement)
 
 
 
-
-
+inventory = int(( BalanceSheet[BalanceSheet.item == '存貨合計'] ).values[0][1]  )
+print(inventory)
 
 
 
