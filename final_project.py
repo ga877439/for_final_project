@@ -137,7 +137,19 @@ print(Cashflow_statement)
 
 
 
-
+EBIT = int( ( income_statement[income_statement.item == '稅前淨利（淨損）'] ).values[0][1] )
+TA = int( ( BalanceSheet[BalanceSheet.item == '資產總額'] ).values[0][1]
+CA = int( ( BalanceSheet[BalanceSheet.item == '流動資產合計'] ).values[0][1]
+CL = int( ( BalanceSheet[BalanceSheet.item == '流動負債合計'] ).values[0][1]
+NWC = CA - CL
+Sales = int( ( income_statement[income_statement.item == '營業收入合計'] ).values[0][1] )
+Common_stock = int( ( BalanceSheet[BalanceSheet.item == '普通股股本'] ).values[0][1]
+Stock_price = #大神教我怎麼爬資料QQ
+MVE = Common_stock / Stock_price
+TD = int( ( BalanceSheet[BalanceSheet.item == '負債總額'] ).values[0][1]
+ARE = int( ( BalanceSheet[BalanceSheet.item == '保留盈餘合計'] ).values[0][1]
+z = 3.3 * (EBIT / TA) + 1.2 * (NWC / TA) + 1.0 * (Sales / TA) + 0.6 * (MVE / TD) + 1.4 * (ARE / TA)
+print(z)
 
 
 
