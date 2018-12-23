@@ -115,7 +115,7 @@ def Cashflow_statement_adjust(Cashflow_statement, IE= 1, IG= 1, DE=1, DG = 1):
 	
 
 
-
+＃附註揭露
 
 
 BalanceSheet, income_statement, Cashflow_statement = get_statements( 2013, 1, 1101)
