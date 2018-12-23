@@ -30,18 +30,20 @@ def get_statements(year, season, stock_number) :
 	for i in range(len(df_list)):
 		df_list[i] = df_list[i].dropna(axis=0,how='any') 
 		df_list[i] = df_list[i].reset_index(drop=True) 
-    
+		df_list[i] = df_list[i].iloc[:,0:2]
+		df_list[i].columns = ['item', 'now']
+		
 # 0:資產負債表 1:損益表 2:現金流量表
 	pd.set_option('display.max_rows', None)
 	return df_list		#傳回3個panal data (三張表)
 
-BalanceSheet, income_statement, Cashflow_statement = get_statements( 2013, 1, 1101)
+
 
 
 def Cashflow_statement_adjust(Cashflow_statement, IE= 1, IG= 1, DE=1, DG = 1):
 
 #此函數可輸入一個現金流量表，並根據option決定要將現金流量表改成什麼樣子。若IE輸入0代表利息支出為營業活動，若DG輸入1則代表股利收入為投資活動，以此類推。
-	Cashflow_statement.columns = ['item', 'now', 'past']
+	
 	
 	def Cashflow_adjust(location, number = 0, plus = 1 ) :
 	#此function 主要是讓使用者輸入代號後，把對應的數字從該活動之現金流做調整，如果plus == 1 代表加；否則輸入 -1 代表減
@@ -112,17 +114,20 @@ def Cashflow_statement_adjust(Cashflow_statement, IE= 1, IG= 1, DE=1, DG = 1):
 
 	
 
-x = Cashflow_statement_adjust(Cashflow_statement)
-
-print(x)
 
 
 
 
+BalanceSheet, income_statement, Cashflow_statement = get_statements( 2013, 1, 1101)
 
 
 
 
+
+equity =  int( ( BalanceSheet[BalanceSheet.item == '權益總額'] ).values[0][1] )
+NI =  int ( ( income_statement[income_statement.item == '本期綜合損益總額'] ).values[0][1] )
+ROE = NI/equity
+print( ROE)
 
 
 
