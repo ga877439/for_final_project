@@ -128,6 +128,57 @@ class Firm:
 		print('營業利益率=',self.Operating_Profit_Margin)
 		
 		
+		# 企業自身創造現金能力的比率 : 這個比率越高，表明企業自身創造現金能力越強，財力基礎越穩固
+		try:
+			self.operating cashflow = int( self.CS[self.CS.item.isin(['營業活動之淨現金流入（流出）'])].values[0][1])
+			self.total cashflow = int( self.CS[self.CS.item.isin([ '本期現金及約當現金增加（減少）數'])].values[0][1])
+			self.power of creating cash = self.operating cashflow / self.total cashflow
+		except:
+			self.power of creating cash = "n/a"
+		print(self.power of creating cash)
+
+		# 企業償付全部債務能力的比率 : 這個比率反映企業一定時期，每1元負債由多少經營活動現金流量所補充，這個比率越大，説明企業償還全部債務能力越強。
+		try:
+			self.total debt = int( self.BS[self.BS.item.isin( [ "負債總額"] ) ].values[0][1] ) 
+			self.power of paying debt = self.operating cashflow / self.total debt
+		except:
+			self.power of paying debt = "n/a"
+		print(self.power of paying debt)
+
+		# 企業短期償債能力的比率 : 這個比率越大，説明企業短期償債能力越強。
+		try:
+			self.current debt = int( self.BS[self.BS.item.isin( [ "流動負債合計"] ) ].values[0][1] )
+			self.power of paying debt SR = self.operating cashflow / self.current debt
+		except:
+			self.power of paying debt SR = "n/a"
+		print(self.power of paying debt SR)
+
+		# 現金流量資本支出比率 : 個比率主要反映企業利用經營活動産生的凈現金流量維持或擴大生産經營規模的能力，其值越大，説明企業發展能力越強
+		try:
+			self.capital expenditures = int( self.CS[self.CS.item.isin(["取得不動產、廠房及設備"] ) ].values[0][1] )
+			self.cash flow capital expenditure ratio = self.operating cashflow / self.capital expenditure
+		except:
+			self.cash flow capital expenditure ratio = "n/a"
+		print(self.cash flow capital expenditure ratio)
+
+		# 每股流通股的現金流量比率 : 比率越大，説明企業進行資本支出的能力越強
+		try:
+			self.EPS = int( self.IS[self.IS.item.isin( ['基本每股盈餘'] ) ].values[0][1] )
+			self.NI = int( self.IS[self.IS.item.isin( ['本期淨利（淨損）'] ) ].values[0][1] )
+			self.outstanding shares = self.NI / self.EPS
+			self.cash flow of per share ratio = self.operating cashflow / self.outstanding shares
+		except:
+			self.cash flow of per share ratio = "n/a"
+		print(self.cash flow of per share ratio)
+
+		# 支付現金股利的比率 : 比率越大，説明企業支付現金股利能力越強
+		try:
+			self.cash div = int( self.CS[self.CS.item.isin(["發放現金股利"] ) ].values[0][1] )
+			self.cash pay div ratio = self.operating cashflow / self.cash div
+		except:
+			self.cash pay div ratio = "n/a"
+		print(self.self.cash pay div ratio)
+		
 		
 
 
