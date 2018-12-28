@@ -56,6 +56,11 @@ class Firm:
 		df_list[2].columns = ['item', 'now']
 	
 		self.BS , self.IS, self.CS = df_list
+	def getratios(self):
+		#ROE
+		self.equity =  int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][1] )
+		self.NI =    int(  self.BS[self.IS.item.isin( ['本期綜合損益總額'] ) ].values[0][1] )  
+		self.ROE = self.NI/self.equity
 		
 	def getratios(self):
 		self.inventory=int(  self.BS[self.BS.item.isin( ['存貨合計' , '存貨'] ) ].values[0][1] )
