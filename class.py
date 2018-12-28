@@ -7,7 +7,7 @@ class Firm:
 			self.season = str(season)
 			self.stock_number = str(stock_number)
 			self.get_statements()
-
+			self.getratios()
 	def get_statements(self) :
 	#爬取目標網站
 		year = self.year
@@ -56,16 +56,87 @@ class Firm:
 		self.BS , self.IS, self.CS = df_list
 	def getratios(self):
 		#ROE
-		self.ave_equity =  int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][1] )+ int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][2] )
-		self.NI =    int(  self.BS[self.IS.item.isin( ['本期綜合損益總額'] ) ].values[0][1] )  
-		self.ROE = self.NI/self.ave_equity
+		try:
+			self.ave_equity =  int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][1] )+ int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][2] )
+			self.NI =    int(  self.IS[self.IS.item.isin( ['本期綜合損益總額'] ) ].values[0][1] )  
+			self.ROE = self.NI/self.ave_equity 
+		except:
+			self.ROE='n/a'
+		print(self.ROE)
+
+		#流動比率
+		try:
+			self.current_assets =  int(  self.BS[self.BS.item.isin( ['流動資產合計'] ) ].values[0][1] ) 
+			self.current_liabilities =    int(  self.BS[self.BS.item.isin( ['流動負債合計'] ) ].values[0][1] )
+			self.current_ratio=self.current_assets/self.current_liabilities
+		except:
+			self.current_ratio='n/a'
+		print(self.current_ratio)
+
+		#速動比率
+		try:
+			self.current_assets =  int(  self.BS[self.BS.item.isin( ['流動資產合計'] ) ].values[0][1] ) 
+			self.current_liabilities =  int(  self.BS[self.BS.item.isin( ['流動負債合計'] ) ].values[0][1] ) 
+			self.inventory =    int(  self.BS[self.BS.item.isin( ['存貨合計''存貨'] ) ].values[0][1] )
+			self.Accounts_receivable =    int(  self.BS[self.BS.item.isin( ['應收帳款淨額'] ) ].values[0][1] )
+			self.speed_ratio=self.current_assets-self.inventory-self.Accounts_receivable/self.current_liabilities
+		except:
+			self.speed_ratio='n/a'
+		print(self.speed_ratio)
+			#資產負債率
+		try:
+			self.total_liabilities =  int(  self.BS[self.BS.item.isin( ['負債總額'] ) ].values[0][1] ) 
+			self.total_assets =    int(  self.BS[self.BS.item.isin( ['資產總額'] ) ].values[0][1] )
+			self.debt_asset_ratio=self.total_liabilities/self.total_assets
+		except:
+			self.debt_asset_ratio='n/a'
+		print(self.debt_asset_ratio)
+		#股東權益比率
+		try:
+			self.Total_shareholders_equity =  int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][1] ) 
+			self.total_assets =    int(  self.BS[self.BS.item.isin( ['資產總額'] ) ].values[0][1] )
+			self.Equity_ratio=self.Total_shareholders_equity/self.total_assets
+		except:
+			self.Equity_ratio='n/a'
+		print(self.Equity_ratio)
+			
+		#負債與股東權益比率
+		try:
+			self.Total_shareholders_equity =  int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][1] ) 
+			self.total_liabilities =  int(  self.BS[self.BS.item.isin( ['負債總額'] ) ].values[0][1] ) 
+			self.debt_equity_ratio=self.total_liabilities/self.Total_shareholders_equity
+		except:
+			self.debt_equity_ratio='n/a'
+		print(self.debt_equity_ratio)
+		#毛利率
+		try:
+			self.net_revenue =  int(  self.IS[self.IS.item.isin( ['營業毛利（毛損）'] ) ].values[0][1] ) 
+			self.revenue =  int(  self.IS[self.IS.item.isin( ['營業收入合計'] ) ].values[0][1] ) 
+			self.Gross_margin=self.net_revenue/self.revenue
+		except:
+			self.Gross_margin='n/a'
+		print(self.Gross_margin)
+			
+			
+		#營業利益率
+		try:
+			self.revenue =  int(  self.IS[self.IS.item.isin( ['營業收入合計'] ) ].values[0][1] ) 
+			self.Operating_Income =  int(  self.IS[self.IS.item.isin( ['營業利益(合計)'] ) ].values[0][1] ) 
+			self.revenue =  int(  self.IS[self.IS.item.isin( ['營業收入合計'] ) ].values[0][1] ) 
+			self.Operating_Profit_Margin=self.Operating_Income/self.revenue
+		except:
+			self.Operating_Profit_Margin='n/a'
+		print(self.Operating_Profit_Margin)
 		
 		
+
+
+	
+
+
+
+
+
+	
 #以下是 example	
-x = Firm(2013,1,1101)
-print(x.BS)
-print('')
-print(x.IS)
-print('')
-print(x.CS)
-print('')
+x= Firm(2013,1,1101)
