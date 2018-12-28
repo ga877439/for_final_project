@@ -7,7 +7,8 @@ class Firm:
 			self.season = str(season)
 			self.stock_number = str(stock_number)
 			self.get_statements()
-
+			self.getratios()
+			
 	def get_statements(self) :
 	#爬取目標網站
 		year = self.year
@@ -55,6 +56,9 @@ class Firm:
 		df_list[2].columns = ['item', 'now']
 	
 		self.BS , self.IS, self.CS = df_list
+		
+	def getratios(self):
+		self.inventory=int(  self.BS[self.BS.item.isin( ['存貨合計' , '存貨'] ) ].values[0][1] )
 		
 #以下是 example	
 x = Firm(2013,1,1101)
