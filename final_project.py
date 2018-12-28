@@ -133,15 +133,16 @@ def Cashflow_statement_adjust(Cashflow_statement, IE= 1, IG= 1, DE=1, DG = 1):
 
 BalanceSheet, income_statement, Cashflow_statement = get_statements( 2013, 1, 1101)
 
-print(BalanceSheet)
-print(income_statement)
-print(Cashflow_statement)
+# print(BalanceSheet)
+# print(income_statement)
+# print(Cashflow_statement)
 
 
 
-inventory = int(( BalanceSheet[BalanceSheet.item == '存貨合計'] ).values[0][1]  )
+
+
+
+inventory = int( BalanceSheet[	BalanceSheet.item.isin(['存貨合計', '存貨'])	].values[0][1] )
 print(inventory)
-
-
 
 
