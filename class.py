@@ -48,7 +48,6 @@ class Firm:
 		
 		df_list[0] = df_list[0].iloc[:,0:4]
 		df_list[0].columns = ['item', 'now','2', 'past']
-		df_list[0] = df_list[0].drop(columns="2")
 		df_list[1] = df_list[1].iloc[:,0:2]
 		df_list[1].columns = ['item', 'now']
 		df_list[2] = df_list[2].iloc[:,0:2]
@@ -57,9 +56,10 @@ class Firm:
 		self.BS , self.IS, self.CS = df_list
 	def getratios(self):
 		#ROE
-		self.equity =  int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][1] )
+		self.ave_equity =  int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][1] )+ int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][2] )
 		self.NI =    int(  self.BS[self.IS.item.isin( ['本期綜合損益總額'] ) ].values[0][1] )  
-		self.ROE = self.NI/self.equity
+		self.ROE = self.NI/self.ave_equity
+		
 		
 #以下是 example	
 x = Firm(2013,1,1101)
