@@ -3,7 +3,7 @@ from tkinter import ttk
 import tkinter.font as tkFont
 from tkinter import *
 
-ratios_list = ['ROE', '流動比率', '速動比率', '資產負債比', '權益資產比', '毛利率', '營業利益率', 
+ratios_list = ['ROE', '流動比率', '速動比率', '資產負債比', '權益資產比', '負債與股東權益比率', '毛利率', '營業利益率', 
 	'現金創造力',  '償債力', '短期償債力', '現金流量資本支出比率', '每股現金流量比率', '股利支付比率']
 			   
 			   
@@ -17,7 +17,6 @@ ratios_list = ['ROE', '流動比率', '速動比率', '資產負債比', '權益
 
 import requests
 import pandas as pd
-
 class Firm:
 	def __init__(self, year, season, stock_number):	
 			self.year = str(year)
@@ -27,12 +26,17 @@ class Firm:
 			self.flag = 1 #判斷是否該股票代碼是有效代碼
 			
 			self.get_statements()
+			if self.flag == 0:
+				self.flag = 1
+				self.get_statements(type = 'A')
+				
 			self.ratios = []
 			if self.flag == 1:
 				self.getratios()
 			
 			
-	def get_statements(self) :
+			
+	def get_statements(self, type = 'C') :
 	#爬取目標網站
 		year = self.year
 		season = self.season
@@ -44,7 +48,7 @@ class Firm:
 		 'CO_ID': stock_number,
 		  'SYEAR': year,
 		  'SSEASON': season,
-		  'REPORT_ID': "C",
+		  'REPORT_ID': type,
 		}
 
 		r = requests.post(url,form_data)
@@ -70,9 +74,12 @@ class Firm:
 		# 0:資產負債表 1:損益表 2:現金流量表
 			pd.set_option('display.max_rows', None)
 			
-			
-			df_list[0] = df_list[0].iloc[:,0:4]
-			df_list[0].columns = ['item', 'now','2', 'past']
+			if season == '4':
+
+				df_list[0].columns = ['item', 'now', 'past']
+			else:
+				df_list[0].columns = ['item', 'now', '2', 'past']
+				
 			df_list[1] = df_list[1].iloc[:,0:2]
 			df_list[1].columns = ['item', 'now']
 			df_list[2] = df_list[2].iloc[:,0:2]
@@ -86,8 +93,8 @@ class Firm:
 	def getratios(self):
 		#ROE
 		try:
-			self.ave_equity =  int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][1] )+ int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][2] )
-			self.NI =    int(  self.IS[self.IS.item.isin( ['本期綜合損益總額'] ) ].values[0][1] )  
+			self.ave_equity =  int(  self.BS[self.BS.item.isin( ['權益總額', '權益總計'] ) ].values[0][1] )+ int(  self.BS[self.BS.item.isin( ['權益總額'] ) ].values[0][2] )
+			self.NI = int( self.IS[self.IS.item.isin( ['本期淨利（淨損）', '繼續營業單位本期淨利（淨損）', '本期稅後淨利（淨損）'] ) ].values[0][1] )
 			self.ROE = self.NI/self.ave_equity 
 		except:
 			self.ROE='n/a'
@@ -165,10 +172,11 @@ class Firm:
 		except:
 			self.power_of_creating_cash = "n/a"
 		self.ratios.append(self.power_of_creating_cash)
+		
 
 		# 企業償付全部債務能力的比率 : 這個比率反映企業一定時期，每1元負債由多少經營活動現金流量所補充，這個比率越大，説明企業償還全部債務能力越強。
 		try:
-			self.total_debt = int( self.BS[self.BS.item.isin( [ "負債總額"] ) ].values[0][1] ) 
+			self.total_debt = int( self.BS[self.BS.item.isin( [ "負債總額","負債總計"] ) ].values[0][1] ) 
 			self.power_of_paying_debt = self.operating_cashflow / self.total_debt
 		except:
 			self.power_of_paying_debt = "n/a"
@@ -184,16 +192,17 @@ class Firm:
 
 		# 現金流量資本支出比率 : 個比率主要反映企業利用經營活動産生的凈現金流量維持或擴大生産經營規模的能力，其值越大，説明企業發展能力越強
 		try:
-			self.capital_expenditures = int( self.CS[self.CS.item.isin(["取得不動產、廠房及設備"] ) ].values[0][1] )
-			self.cash_flow_capital_expenditure_ratio = self.operating_cashflow / self.capital_expenditure
+			self.capital_expenditures = -1* int( self.CS[self.CS.item.isin(["取得不動產、廠房及設備", "取得不動產及設備"] ) ].values[0][1] )
+			self.cash_flow_capital_expenditure_ratio = self.operating_cashflow / self.capital_expenditures
 		except:
 			self.cash_flow_capital_expenditure_ratio = "n/a"
+
 		self.ratios.append(self.cash_flow_capital_expenditure_ratio)
 
 		# 每股流通股的現金流量比率 : 比率越大，説明企業進行資本支出的能力越強
 		try:
-			self.EPS = int( self.IS[self.IS.item.isin( ['基本每股盈餘'] ) ].values[0][1] )
-			self.NI = int( self.IS[self.IS.item.isin( ['本期淨利（淨損）'] ) ].values[0][1] )
+			self.EPS = float( self.IS[self.IS.item.isin( ['基本每股盈餘','基本每股盈餘合計'] ) ].values[0][1] )
+			#self.NI = int( self.IS[self.IS.item.isin( ['本期淨利（淨損）', '繼續營業單位本期淨利（淨損）'] ) ].values[0][1] )
 			self.outstanding_shares = self.NI / self.EPS
 			self.cash_flow_of_per_share_ratio = self.operating_cashflow / self.outstanding_shares
 		except:
@@ -202,11 +211,13 @@ class Firm:
 
 		# 支付現金股利的比率 : 比率越大，説明企業支付現金股利能力越強
 		try:
-			self.cash_div = int( self.CS[self.CS.item.isin(["發放現金股利"] ) ].values[0][1] )
+			self.cash_div = -1 * int( self.CS[self.CS.item.isin(["發放現金股利"] ) ].values[0][1] )
 			self.cash_pay_div_ratio = self.operating_cashflow / self.cash_div
 		except:
 			self.cash_pay_div_ratio = "n/a"
 		self.ratios.append(self.cash_pay_div_ratio)
+		
+		
 		
 
 
