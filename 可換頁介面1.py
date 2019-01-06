@@ -271,7 +271,7 @@ class StartPage(tk.Frame):
 
         self.lblNum = tk.Label(self, text = "Num", height = 1, width = 5, font = f,fg = "white", bg = "red")
         self.lblSeason = tk.Label(self, text = "Season", height = 1, width = 7, font = f,fg = "white", bg = "orange")
-        self.lblSheet = tk.Label(self, text = "Sheet", height = 1, width = 10, font = f,fg = "white", bg = "green")
+
         self.lblRatio = tk.Label(self, text = "Ratio", height = 1, width = 15, font = f,fg = "white", bg = "blue")
         self.btnNext = tk.Button(self, text="下一頁", height = 1, width = 8,font = f, fg = "white", bg = "black",
                     command = lambda: controller.show_frame(PageOne))##
@@ -280,10 +280,10 @@ class StartPage(tk.Frame):
 					
         self.lblNum.grid(row = 0, column = 1, sticky = tk.W)
         self.lblSeason.grid(row = 0, column = 2, sticky = tk.E)
-        self.lblSheet.grid(row = 0, column = 3, sticky = tk.E)
-        self.lblRatio.grid(row = 0, column = 4, columnspan = 2)
-        self.btnNext.grid(row = 8, column = 5, columnspan = 1, sticky = tk.E)    		
-        self.btngetvalues.grid(row = 9, column = 5, columnspan = 1, sticky = tk.E)
+
+        self.lblRatio.grid(row = 0, column = 3, columnspan = 2)
+        self.btnNext.grid(row = 8, column = 4, columnspan = 1, sticky = tk.E)    		
+        self.btngetvalues.grid(row = 9, column = 4, columnspan = 1, sticky = tk.E)
 #################################################column = 0 self.btnOXs
         self.btnOXs = []
         for i in range(5):
@@ -311,11 +311,8 @@ class StartPage(tk.Frame):
             self.comboSeasons[i].current(1)
             self.comboSeasons[i].grid(row = i+3, column = 2)
 ################################################# column = 3 self.comboSheets
-        self.sheet = ["資產負債表", "綜合損益表", "現金流量表"]
-        self.comboSheets = []
-        for i in range(5):
-            self.comboSheets.append(ttk.Combobox(self ,width = 9, values=self.sheet, font = f))
-            self.comboSheets[i].grid(row = i+3, column = 3) 
+
+
 ################################################# column = 4 self.listboxRatios
         self.listboxRatios = Listbox(self, width = 15, height = 8, selectmode = MULTIPLE,
                             fg = "white", bg = 'purple', font = f)
@@ -333,7 +330,7 @@ class StartPage(tk.Frame):
         self.getBtnOXValue()
         self.getNumValue()
         self.getSeasonValue()
-        self.getSheetValue()
+
 		
     def clickBtnOX0(self): # get按鈕是O還是X 然後傳入函數self.changeBtnOX
         OorX = self.btnOXs[0].cget("text")
@@ -366,9 +363,7 @@ class StartPage(tk.Frame):
         for i in self.comboSeasons:
             year_seasons.append(i.get())
 
-    def getSheetValue(self): # 取值
-        for i in self.comboSheets:
-            print(i.get())
+
 
     def getRatioValue(self): # 取值
         for i in self.listboxRatios.curselection():
@@ -379,35 +374,37 @@ class StartPage(tk.Frame):
 
 class PageOne(tk.Frame):
 
-
-
+	
 	
 	
 	def __init__(self, parent, controller):
+		f = tkFont.Font(size = 36, family = "Courier New")
 		tk.Frame.__init__(self, parent)
-		label = tk.Label(self, text="Page One!!!")
-		label.grid(row = 1, column = 0, sticky = tk.NE + tk.SW)
-		button1 = tk.Button(self, text="Back to Home",
+
+		self.button1 = tk.Button(self, text="Back to Home", font = f ,
 			command=lambda: controller.show_frame(StartPage))
-		button1.grid(row = 2, column = 0, sticky = tk.NE + tk.SW)
+		self.button1.grid(row = 0, column = 0, sticky = tk.NE + tk.SW)
 		
-		button2 = tk.Button(self, text="開始計算",
+		self.button2 = tk.Button(self, text="開始計算", font = f,
 			command=self.createWidgets)
-		button2.grid(row = 3, column = 0, sticky = tk.NE + tk.SW)
+		self.button2.grid(row = 1, column = 0, sticky = tk.NE + tk.SW)
 
 		#self.createWidgets()
 	def createWidgets(self):
 		f1 = tkFont.Font(size = 12, family = "Courier New")
-		
+		self.button1.config( font = f1 )
+		self.button2.config( font = f1 ) 
 		
 		#文字敘述  (第零欄)
 		
-		self.title = tk.Label(self, text = "公司代碼", height = 1, width = 16, font = f1) #第0列
-		self.title.grid(row = 0, column = 0, sticky = tk.NE + tk.SW)
+		self.title1 = tk.Label(self, text = "公司代碼", height = 1, width = 16, font = f1) #第0列
+		self.title1.grid(row = 0, column = 1, sticky = tk.NE + tk.SW)
+		self.title2 = tk.Label(self, text = "年-季", height = 1, width = 16, font = f1) #第0列
+		self.title2.grid(row = 1, column = 1, sticky = tk.NE + tk.SW)
 		
 		for i in range( len(ratios_list)):	#第i+1列
 			temp = tk.Label(self, text = ratios_list[i] , height = 1, width = 16, font = f1) 
-			temp.grid(row= i+1 , column=0, sticky=tk.NE + tk.SW)
+			temp.grid(row= 2+i , column=1, sticky=tk.NE + tk.SW)
 		
 		
 		
@@ -424,33 +421,41 @@ class PageOne(tk.Frame):
 
 				
 			if check_list[j] == 'O' and company_name[j] != '':
-				if firm_list[j].flag != 1:
-					self.f1	= tk.Label(self, text = '輸入錯誤' , height = 1, width = 16, font = f1) 	#第0列
-					self.f1.grid(row = 0, column = 1+j, sticky = tk.NE + tk.SW)
 			
-					for i in range( len(ratios_list)):		#第i+1列
+			
+				
+				if firm_list[j].flag != 1:
+					self.label1	= tk.Label(self, text = '輸入錯誤' , height = 1, width = 16, font = f1) 	#第0列
+					self.label1.grid(row = 0, column = 2+j, sticky = tk.NE + tk.SW)
+					self.label2	= tk.Label(self, text = '輸入錯誤' , height = 1, width = 16, font = f1) 	#第1列
+					self.label2.grid(row = 1, column = 2+j, sticky = tk.NE + tk.SW)
+			
+					for i in range( len(ratios_list)):		#第i+2列
 						temp = tk.Label(self, text = 'None', height = 1, width = 16, font = f1) 
-						temp.grid(row= i+1 , column=1+j, sticky=tk.NE + tk.SW)
+						temp.grid(row= i+2 , column=2+j, sticky=tk.NE + tk.SW)
 		
 				else:
-					self.name = tk.Label(self, text = company_name[j] , height = 1, width = 16, font = f1) 	#第0列
-					self.name.grid(row = 0, column = 1+j , sticky = tk.NE + tk.SW)
-			
+					self.label1 = tk.Label(self, text = company_name[j] , height = 1, width = 16, font = f1) 	#第0列
+					self.label1.grid(row = 0, column = 2+j , sticky = tk.NE + tk.SW)
+					self.label1 = tk.Label(self, text = year_seasons[j] , height = 1, width = 16, font = f1) 	#第1列
+					self.label1.grid(row = 1, column = 2+j , sticky = tk.NE + tk.SW)			
 					for i in range( len(ratios_list)):		#第i+1列
 						try:
 							temp = tk.Label(self, text = '%0.4f' %  firm_list[j].ratios[i], height = 1, width = 16, font = f1) 
 						except:
 							temp = tk.Label(self, text = firm_list[j].ratios[i], height = 1, width = 16, font = f1) 
-						temp.grid(row= i+1 , column=1+j , sticky=tk.NE + tk.SW)
+						temp.grid(row= i+2 , column=2+j , sticky=tk.NE + tk.SW)
 
 	
 			else:
-				self.f1	= tk.Label(self, text = '未選擇' , height = 1, width = 16, font = f1) 	#第0列
-				self.f1.grid(row = 0, column = 1+j, sticky = tk.NE + tk.SW)
+				self.label1	= tk.Label(self, text = '未選擇' , height = 1, width = 16, font = f1) 	#第0列
+				self.label1.grid(row = 0, column = 2+j, sticky = tk.NE + tk.SW)
+				self.label2	= tk.Label(self, text = '未選擇' , height = 1, width = 16, font = f1) 	#第1列
+				self.label2.grid(row = 1, column = 2+j, sticky = tk.NE + tk.SW)
 		
 				for i in range( len(ratios_list)):		#第i+1列
 					temp = tk.Label(self, text = 'None', height = 1, width = 16, font = f1) 
-					temp.grid(row= i+1 , column=1+j, sticky=tk.NE + tk.SW)
+					temp.grid(row= i+2 , column=2+j, sticky=tk.NE + tk.SW)
 	
 	
 	
