@@ -352,14 +352,20 @@ class StartPage(tk.Frame):
         self.btnOXs[i].config(text = "X") if OorX == "O" else self.btnOXs[i].config(text = "O")
 
     def getBtnOXValue(self): # 取值
+        global check_list
+        check_list = []
         for i in self.btnOXs:
             check_list.append(i.cget("text"))
 
     def getNumValue(self): # 取值
+        global company_name 
+        company_name = []
         for i in self.enterNums:
             company_name.append( i.get() )
     
     def getSeasonValue(self): # 取值
+        global year_seasons 
+        year_seasons = []
         for i in self.comboSeasons:
             year_seasons.append(i.get())
 
@@ -371,7 +377,7 @@ class StartPage(tk.Frame):
 
 			
 			
-
+firm_list = []
 class PageOne(tk.Frame):
 
 	
@@ -389,8 +395,9 @@ class PageOne(tk.Frame):
 			command=self.createWidgets)
 		self.button2.grid(row = 1, column = 0, sticky = tk.NE + tk.SW)
 
-		#self.createWidgets()
+		
 	def createWidgets(self):
+		
 		f1 = tkFont.Font(size = 12, family = "Courier New")
 		self.button1.config( font = f1 )
 		self.button2.config( font = f1 ) 
@@ -409,13 +416,14 @@ class PageOne(tk.Frame):
 		
 		
 		#開始處理公司	
-		firm_list = []	#共有5家公司
+		global firm_list #共有5家公司
+		firm_list = []
 		for i in range(5):
 			if company_name[i] != '':
 				firm_list.append(  Firm( year_seasons[i][0:3], year_seasons[i][-1], company_name[i] )  )
 			else:
 				firm_list.append( 0 )
-			
+		
 		#插入 grid 以及數字 第j家公司  (第j欄)
 		for j in range(5):
 
