@@ -2,21 +2,15 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font as tkFont
 from tkinter import *
+import numpy as np
+import scipy.stats as si
+import sympy as sy
+import requests
+import pandas as pd
 
 ratios_list = ['ROE', '流動比率', '速動比率', '資產負債比', '權益資產比', '負債與股東權益比率', '毛利率', '營業利益率', 
 	'現金創造力',  '償債力', '短期償債力', '現金流量資本支出比率', '每股現金流量比率', '股利支付比率']
-			   
-			   
 
-
-
-
-
-
-
-
-import requests
-import pandas as pd
 class Firm:
 	def __init__(self, year, season, stock_number):	
 			self.year = str(year)
@@ -237,7 +231,7 @@ class TwoPageApp(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne):
+        for F in (StartPage, PageOne, PageAtt1, PageAtt2, PageAtt3, PageAtt4):
 
             frame = F(container, self)
 
@@ -263,27 +257,45 @@ check_list = [] #用來判別是圈還是叉  ( O or X )
 
 class StartPage(tk.Frame):
 
-
+        
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
         
         f = tkFont.Font(size = 36, family = "Courier New")
+        f2 = tkFont.Font(size = 15, family = "Courier New")
+        f3 = tkFont.Font(size = 25, family = "Courier New")
 
-        self.lblNum = tk.Label(self, text = "Num", height = 1, width = 5, font = f,fg = "white", bg = "red")
-        self.lblSeason = tk.Label(self, text = "Season", height = 1, width = 7, font = f,fg = "white", bg = "orange")
+        self.lblNum = tk.Label(self, text = "Num", height = 1, width = 7, font = f,fg = "white", bg = "red")
+        self.lblSeason = tk.Label(self, text = "Season", height = 1, width = 9, font = f,fg = "white", bg = "green2")
 
-        self.lblRatio = tk.Label(self, text = "Ratio", height = 1, width = 15, font = f,fg = "white", bg = "blue")
-        self.btnNext = tk.Button(self, text="下一頁", height = 1, width = 8,font = f, fg = "white", bg = "black",
+        self.lblRatio = tk.Label(self, text = "Ratio", height = 1, width = 20, font = f,fg = "white", bg = "dark orange")
+        self.btnNext = tk.Button(self, text="下一頁", height = 1, width = 8,font = f3, bg = "gold",
                     command = lambda: controller.show_frame(PageOne))##
-        self.btngetvalues = tk.Button(self, text="輸入完畢", height = 1, width = 8,font = f, fg = "white", bg = "black",
-                    command = self.getvalues )##			
+        self.btngetvalues = tk.Button(self, text="輸入完畢", height = 1, width = 8,font = f3, bg = "gold",
+                    command = self.getvalues )		
 					
         self.lblNum.grid(row = 0, column = 1, sticky = tk.W)
         self.lblSeason.grid(row = 0, column = 2, sticky = tk.E)
 
         self.lblRatio.grid(row = 0, column = 3, columnspan = 2)
         self.btnNext.grid(row = 8, column = 4, columnspan = 1, sticky = tk.E)    		
-        self.btngetvalues.grid(row = 9, column = 4, columnspan = 1, sticky = tk.E)
+        self.btngetvalues.grid(row = 8, column = 3, columnspan = 2)
+
+        self.btnAtt1 = tk.Button(self, text="選擇權定價", height = 1, width = 17, font = f2, fg = "white", bg = "DeepPink2",
+                    command = lambda: controller.show_frame(PageAtt1))
+        self.btnAtt1.grid(row = 8, column = 0, columnspan = 2, sticky = tk.E)
+        
+        self.btnAtt2 = tk.Button(self, text="債券市值計算", height = 1, width = 17, font = f2, fg = "white", bg = "purple1",
+                    command = lambda: controller.show_frame(PageAtt2))
+        self.btnAtt2.grid(row = 9, column = 0, columnspan = 2, sticky = tk.E)
+        
+        self.btnAtt3 = tk.Button(self, text="權證價格計算", height = 1, width = 17, font = f2, fg = "white", bg = "purple1",
+                    command = lambda: controller.show_frame(PageAtt3))
+        self.btnAtt3.grid(row = 8, column = 1, columnspan = 2, sticky = tk.E)
+        
+        self.btnAtt4 = tk.Button(self, text="可轉換公司債價值計算", height = 1, width = 17, font = f2, fg = "white", bg = "DeepPink2",
+                    command = lambda: controller.show_frame(PageAtt4))
+        self.btnAtt4.grid(row = 9, column = 1, columnspan = 2, sticky = tk.E)
 #################################################column = 0 self.btnOXs
         self.btnOXs = []
         for i in range(5):
@@ -297,7 +309,7 @@ class StartPage(tk.Frame):
 ################################################# column = 1 self.enterNums
         self.enterNums = []
         for i in range(5):
-            self.enterNums.append(tk.Entry(self, width = 5, font = f))
+            self.enterNums.append(tk.Entry(self, width = 7, font = f))
             self.enterNums[i].grid(row = i+3, column = 1, sticky = tk.W)
 ################################################# column = 2 self.comboSeasons
         self.seasons = [] # 放107-4 107-3 107-2 ...
@@ -307,20 +319,17 @@ class StartPage(tk.Frame):
                 
         self.comboSeasons = []
         for i in range(5):
-            self.comboSeasons.append(ttk.Combobox(self ,width = 6, values = self.seasons, font = f))
+            self.comboSeasons.append(ttk.Combobox(self ,width = 8, values = self.seasons, font = f))
             self.comboSeasons[i].current(1)
             self.comboSeasons[i].grid(row = i+3, column = 2)
-################################################# column = 3 self.comboSheets
-
-
-################################################# column = 4 self.listboxRatios
-        self.listboxRatios = Listbox(self, width = 15, height = 8, selectmode = MULTIPLE,
-                            fg = "white", bg = 'purple', font = f)
+################################################# column = 3 self.listboxRatios
+        self.listboxRatios = Listbox(self, width = 20, height = 8, selectmode = MULTIPLE,
+                            fg = "white", bg = 'DeepSkyBlue2', font = f)
         self.scrollbar = Scrollbar(self, orient = "vertical")
         self.listboxRatios.config(yscrollcommand = self.scrollbar.set)
         self.scrollbar.config(command = self.listboxRatios.yview)
-        self.listboxRatios.grid(row = 1, column = 4, rowspan = 7, columnspan = 2, sticky = "NEWS")
-        self.scrollbar.grid(row = 1, column = 6, rowspan = 7, sticky = N+S)
+        self.listboxRatios.grid(row = 1, column = 3, rowspan = 7, columnspan = 2, sticky = "NEWS")
+        self.scrollbar.grid(row = 1, column = 5, rowspan = 7, sticky = N+S)
 
         for ratio in ratios_list:
             self.listboxRatios.insert(END, ratio)
@@ -369,29 +378,331 @@ class StartPage(tk.Frame):
         for i in self.comboSeasons:
             year_seasons.append(i.get())
 
-
-
-    def getRatioValue(self): # 取值
-        for i in self.listboxRatios.curselection():
-            ratios_to_be_printed.append(self.listboxRatios.get(i))
-
 			
+#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^附加功能
+def euro_vanilla_call(S, K, T, r, sigma):
+    
+    #S: spot price
+    #K: strike price
+    #T: time to maturity
+    #r: interest rate
+    #sigma: volatility of underlying asset
+    
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    d1_normal = si.norm.cdf(d1, 0.0, 1.0)#holding shares
+    d2_normal = K * np.exp(-r * T) * si.norm.cdf(d2, 0.0, 1.0)#borrow 
+    call = (S * si.norm.cdf(d1, 0.0, 1.0) - K * np.exp(-r * T) * si.norm.cdf(d2, 0.0, 1.0))
+    bond_price = S - call
+    default_prob = si.norm.cdf(-d2, 0.0, 1.0)
+    return (call, d1_normal, d2_normal, bond_price, default_prob)    
+  
+def euro_vanilla_put(S, K, T, r, sigma):
+    
+    #S: spot price
+    #K: strike price
+    #T: time to maturity
+    #r: interest rate
+    #sigma: volatility of underlying asset
+    
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    
+    put = (K * np.exp(-r * T) * si.norm.cdf(-d2, 0.0, 1.0) - S * si.norm.cdf(-d1, 0.0, 1.0))
+    
+    return put
+
+def euro_vanilla_call_4(S, K, T, r, sigma):
+    
+    #S: spot price
+    #K: strike price
+    #T: time to maturity
+    #r: interest rate
+    #sigma: volatility of underlying asset
+    
+    d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+    d1_normal = si.norm.cdf(d1, 0.0, 1.0)#holding shares
+    d2_normal = K * np.exp(-r * T) * si.norm.cdf(d2, 0.0, 1.0)#borrow 
+    call = (S * si.norm.cdf(d1, 0.0, 1.0) - K * np.exp(-r * T) * si.norm.cdf(d2, 0.0, 1.0))
+    bond_price = S - call
+    default_prob = si.norm.cdf(-d2, 0.0, 1.0)
+    return call
+
+
+class PageAtt1(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        f1 = tkFont.Font(size = 20, family = "Courier New")
+        f2 = tkFont.Font(size = 20, family = "Courier New")
+
+        self.lblNumList = []
+        text = ("選擇權定價:", "請輸入股票價格:", "請輸入執行價格:", "請輸入期限(Year):",
+                "請輸入無風險資產年利率(ex:0.01):", "請輸入股價波動率(ex:0.25):",
+                "答案:", "Call Price:", "Put Price:")
+        for i in range(9):
+            self.lblNumList.append(tk.Label(self, height = 1, width = 40, font = f1))
+            self.lblNumList[i]["text"] = text[i]
+            self.lblNumList[i].grid(row = i, column = 0, sticky = tk.NE + tk.SW)
+        self.lblNumList[0]["bg"] = "firebrick2"
+
+        self.txtNumList = []
+        for i in range(5):
+            self.txtNumList.append(tk.Entry(self, width = 20, font = f1))   
+            self.txtNumList[i].grid(row = i+1, column = 1, sticky = tk.NE + tk.SW)
+
+        self.ansList = []
+        for i in range(2):
+            self.ansList.append(tk.Entry(self, width = 20, font = f1))
+            self.ansList[i].grid(row = i+7, column = 1, sticky = tk.NE + tk.SW)
+        
+        self.btnNum1 = tk.Button(self, text = "開始計算", command = self.clickBtnNum1, height = 1, width = 10, bg = "gold", font = f2)
+        self.btnNum1.grid(row = 6, column = 0, columnspan = 2, sticky = tk.NE + tk.SW)
+
+        self.btnBack = tk.Button(self, text="回主畫面", height = 1, width = 8,font = f1, fg = "white", bg = "blue",
+                    command = lambda: controller.show_frame(StartPage))
+        self.btnBack.grid(row = 12, column = 0, sticky = tk.W)
+
+    def clickBtnNum1(self):	
+        S = float(self.txtNumList[0].get())
+        K = float(self.txtNumList[1].get())
+        T = float(self.txtNumList[2].get())
+        R = float(self.txtNumList[3].get())
+        sigma = float(self.txtNumList[4].get())
+
+
+        call_ans = euro_vanilla_call(S, K, T, R, sigma)[0]
+        call_final_ans = round(call_ans, 2)
+        hold_share = round(euro_vanilla_call(S, K, T, R, sigma)[1], 2)
+        borrow_price = round(euro_vanilla_call(S, K, T, R, sigma)[2], 2)
+
+        put_ans = euro_vanilla_put(S, K, T, R, sigma)
+        put_final_ans = round(put_ans, 2)
+                        
+        self.ansList[0].delete(0,END)
+        self.ansList[0].insert(0, str(call_final_ans))
+
+        self.ansList[1].delete(0,END)
+        self.ansList[1].insert(0, str(put_final_ans))
+
+
+
+class PageAtt2(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        f1 = tkFont.Font(size = 20, family = "Courier New")
+        f2 = tkFont.Font(size = 20, family = "Courier New")
+
+        self.lblNumList = []
+        text = ("債券市值計算:", "請輸入公司資產總值:", "請輸入一張債券的面額:", "請輸入總共有幾張債券:",
+                "請輸入債券到期期限(Year):", "請輸入無風險資產年利率(ex:0.01):",
+                "請輸入股價波動率(ex:0.25)", "答案:", "公司權益總市值:",
+                "債券當下市值:", "債券倒帳機率:", "債券總面額:")
+        for i in range(12):
+            self.lblNumList.append(tk.Label(self, height = 1, width = 45, font = f1))
+            self.lblNumList[i]["text"] = text[i]
+            self.lblNumList[i].grid(row = i, column = 0, sticky = tk.NE + tk.SW)
+        self.lblNumList[0]["bg"] = "firebrick2"
+        
+        self.txtNumList = []
+        for i in range(6):
+            self.txtNumList.append(tk.Entry(self, width = 20, font = f1))   
+            self.txtNumList[i].grid(row = i+1, column = 1, sticky = tk.NE + tk.SW)
+
+        self.ansList = []
+        for i in range(4):
+            self.ansList.append(tk.Entry(self, width = 20, font = f1))
+            self.ansList[i].grid(row = i+8, column = 1, sticky = tk.NE + tk.SW)
+
+        self.btnNum1 = tk.Button(self, text = "開始計算", command = self.clickBtnNum1, height = 1, width = 10, bg = "gold", font = f2)
+        self.btnNum1.grid(row = 7, column = 0, columnspan = 2, sticky = tk.NE + tk.SW)
+        
+        self.btnBack = tk.Button(self, text="回主畫面", height = 1, width = 8,font = f1, fg = "white", bg = "blue",
+                    command = lambda: controller.show_frame(StartPage))
+        self.btnBack.grid(row = 13, column = 0, sticky = tk.W)
+
+
+    def clickBtnNum1(self):
+        S2 = float(self.txtNumList[0].get())
+        k2 = float(self.txtNumList[1].get())
+        n2 = float(self.txtNumList[2].get())
+        T2 = float(self.txtNumList[3].get())
+        R2 = float(self.txtNumList[4].get())
+        sigma2 = float(self.txtNumList[5].get())
+
+        K2 = k2 * n2
+        call_ans2 = euro_vanilla_call(S2, K2, T2, R2, sigma2)[0]
+        call_final_ans2 = round(call_ans2, 6)
+        hold_share2 = round(euro_vanilla_call(S2, K2, T2, R2, sigma2)[1], 6)
+        borrow_price2 = round(euro_vanilla_call(S2, K2, T2, R2, sigma2)[2], 6)
+        bond_price2 = euro_vanilla_call(S2, K2, T2, R2, sigma2)[3]
+        default_prob2 = euro_vanilla_call(S2, K2, T2, R2, sigma2)[4]
+                
+        self.ansList[0].delete(0,END)
+        self.ansList[0].insert(0, str(call_final_ans2))
+
+        self.ansList[1].delete(0,END)
+        self.ansList[1].insert(0, str(bond_price2))
+
+        self.ansList[2].delete(0,END)
+        self.ansList[2].insert(0, str(default_prob2))
+
+        self.ansList[3].delete(0,END)
+        self.ansList[3].insert(0, str(K2))
+
+
+class PageAtt3(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        f1 = tkFont.Font(size = 20, family = "Courier New")
+        f2 = tkFont.Font(size = 20, family = "Courier New")
+
+        self.lblNumList = []
+        text = ("權證價格計算:", "公司資產總值:", "權證執行價格:", "權證到期年限(Year):",
+                "無風險資產年利率(ex:0.01):", "公司資產波動率(ex:0.25)",
+                "公司原本在外流通股數ex(20(shares)):", "所有權證可換得的公司股數: ex(2(shares))",
+                "答案:", "稀釋比為:", "一張權證的價格為:", "權證總價格為:")
+        for i in range(12):
+            self.lblNumList.append(tk.Label(self, height = 1, width = 45, font = f1))
+            self.lblNumList[i]["text"] = text[i]
+            self.lblNumList[i].grid(row = i, column = 0, sticky = tk.NE + tk.SW)
+        self.lblNumList[0]["bg"] = "firebrick2"
+        
+        self.txtNumList = []
+        for i in range(7):
+            self.txtNumList.append(tk.Entry(self, width = 20, font = f1))   
+            self.txtNumList[i].grid(row = i+1, column = 1, sticky = tk.NE + tk.SW)
+
+        self.ansList = []
+        for i in range(3):
+            self.ansList.append(tk.Entry(self, width = 20, font = f1))
+            self.ansList[i].grid(row = i+9, column = 1, sticky = tk.NE + tk.SW)
+        
+        self.btnBack = tk.Button(self, text="回主畫面", height = 1, width = 8,font = f1, fg = "white", bg = "blue",
+                    command = lambda: controller.show_frame(StartPage))
+        self.btnBack.grid(row = 13, column = 0, sticky = tk.W)
+
+        self.btnNum1 = tk.Button(self, text = "開始計算", command = self.clickBtnNum1, height = 1, width = 10, bg = "gold", font = f2)                
+        self.btnNum1.grid(row = 8, column = 0, columnspan = 2, sticky = tk.NE + tk.SW)
+
+                        
+    def clickBtnNum1(self):	
+        S3 = float(self.txtNumList[0].get())
+        K3 = float(self.txtNumList[1].get())
+        T3 = float(self.txtNumList[2].get())
+        R3 = float(self.txtNumList[3].get())
+        sigma3 = float(self.txtNumList[4].get())
+        n3 = float(self.txtNumList[5].get())
+        m3 = float(self.txtNumList[6].get())
+
+        dilution_correction_factor3 = round((n3 / (n3 + m3)), 4)
+        call_ans3 = euro_vanilla_call(S3/n3, K3, T3, R3, sigma3)[0]
+        call_final_ans3 = round(call_ans3, 4)
+        warrant_per_share3 = round(dilution_correction_factor3 * call_final_ans3, 4)
+        hold_share3 = round(euro_vanilla_call(S3, K3, T3, R3, sigma3)[1], 4)
+        Total_Value_of_Warrent3 = m3 * warrant_per_share3
+                
+        self.ansList[0].delete(0,END)
+        self.ansList[0].insert(0, str(dilution_correction_factor3))
+
+        self.ansList[1].delete(0,END)
+        self.ansList[1].insert(0, str(warrant_per_share3))
+        
+        self.ansList[2].delete(0,END)
+        self.ansList[2].insert(0, str(Total_Value_of_Warrent3))
+
+
+class PageAtt4(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        f1 = tkFont.Font(size = 20, family = "Courier New")
+        f2 = tkFont.Font(size = 20, family = "Courier New")
+
+
+        self.lblNumList = []
+        text = ("可轉換公司債價值計算:", "公司資產總值:", "債券到期期限(Year):",
+                "無風險資產年利率(ex:0.01):", "公司資產波動率(ex:0.25):", "公司原本在外流通股數: ex(20(shares)):",
+                "一張可轉換公司債可換得的公司股數: ex(3.03(shares)):", "總共有幾張可轉換公司債: ex(120(張)):",
+                "一張公司債的票面金額: ex(1000):", "答案:", "公司權益總市值:", "每股價值:", "可轉換債券總價值:",
+                "每張債券價值:")
+        for i in range(14):
+            self.lblNumList.append(tk.Label(self, height = 1, width = 55, font = f1))
+            self.lblNumList[i]["text"] = text[i]
+            self.lblNumList[i].grid(row = i, column = 0, sticky = tk.NE + tk.SW)
+        self.lblNumList[0]["bg"] = "firebrick2"
+        
+        self.txtNumList = []
+        for i in range(8):
+            self.txtNumList.append(tk.Entry(self, width = 15, font = f1))   
+            self.txtNumList[i].grid(row = i+1, column = 1, sticky = tk.NE + tk.SW)
+
+        self.ansList = []
+        for i in range(4):
+            self.ansList.append(tk.Entry(self, width = 15, font = f1))
+            self.ansList[i].grid(row = i+10, column = 1, sticky = tk.NE + tk.SW)
+            
+
+        self.btnBack = tk.Button(self, text="回主畫面", height = 1, width = 8,font = f1, fg = "white", bg = "blue",
+                    command = lambda: controller.show_frame(StartPage))
+        self.btnBack.grid(row = 15, column = 0, sticky = tk.W)
+
+        self.btnNum1 = tk.Button(self, text = "開始計算", command = self.clickBtnNum1, height = 1, width = 10, bg = "gold", font = f2)                
+        self.btnNum1.grid(row = 9, column = 0, columnspan = 2, sticky = tk.NE + tk.SW)
+        
+    def clickBtnNum1(self):	
+        S4 = float(self.txtNumList[0].get())
+        T4 = float(self.txtNumList[1].get())
+        R4 = float(self.txtNumList[2].get())
+        sigma4 = float(self.txtNumList[3].get())
+        n4 = float(self.txtNumList[4].get())
+        m4 = float(self.txtNumList[5].get())
+        b4 = float(self.txtNumList[6].get())
+        bond_face_value4 = float(self.txtNumList[7].get())
+
+        total_bond_face_value4 = round(bond_face_value4 * b4, 4)
+        success_covert_share4 = round(n4 + (b4 * m4), 4)
+        covert_ratio4 = round((b4 * m4)/success_covert_share4,4)
+        strike_price4 = round(total_bond_face_value4 / covert_ratio4,4)
+
+        call_ans4 = euro_vanilla_call(S4, total_bond_face_value4, T4, R4, sigma4)[0]
+        total_equity4 = round(call_ans4, 4)
+        total_bond_price4 = S4 - total_equity4
+        convert_bond4 = round(euro_vanilla_call_4(S4, strike_price4, T4, R4, sigma4), 4)
+        final_covert_bond_price4 = total_bond_price4 + (covert_ratio4 * convert_bond4)
+        per_convert_bond4 = round(final_covert_bond_price4/b4 ,4) 
+        final_value_of_equity4 = S4 - final_covert_bond_price4
+        per_final_price_share4 = round(final_value_of_equity4/n4,4)
+                        
+        self.ansList[0].delete(0,END)
+        self.ansList[0].insert(0, str(final_value_of_equity4))
+
+        self.ansList[1].delete(0,END)
+        self.ansList[1].insert(0, str(per_final_price_share4))
+        
+        self.ansList[2].delete(0,END)
+        self.ansList[2].insert(0, str(final_covert_bond_price4))
+
+        self.ansList[3].delete(0,END)
+        self.ansList[3].insert(0, str(per_convert_bond4))
+
+#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^#@$%^
 			
 firm_list = []
 class PageOne(tk.Frame):
 
-	
-	
-	
 	def __init__(self, parent, controller):
 		f = tkFont.Font(size = 36, family = "Courier New")
 		tk.Frame.__init__(self, parent)
 
-		self.button1 = tk.Button(self, text="Back to Home", font = f ,
+		self.button1 = tk.Button(self, text="Back to Home", font = f, bg = "gold",
 			command=lambda: controller.show_frame(StartPage))
 		self.button1.grid(row = 0, column = 0, sticky = tk.NE + tk.SW)
 		
-		self.button2 = tk.Button(self, text="開始計算", font = f,
+		self.button2 = tk.Button(self, text="開始計算", font = f, bg = "gold",
 			command=self.createWidgets)
 		self.button2.grid(row = 1, column = 0, sticky = tk.NE + tk.SW)
 
@@ -465,14 +776,7 @@ class PageOne(tk.Frame):
 					temp = tk.Label(self, text = 'None', height = 1, width = 16, font = f1) 
 					temp.grid(row= i+2 , column=2+j, sticky=tk.NE + tk.SW)
 	
-	
-	
-
-
 
 app = TwoPageApp()
+app.title("$$$$$$$$$$")
 app.mainloop()
-
-
-
-
