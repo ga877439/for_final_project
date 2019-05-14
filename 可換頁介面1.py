@@ -8,13 +8,6 @@ ratios_list = ['ROE', '流動比率', '速動比率', '資產負債比', '權益
 			   
 			   
 
-
-
-
-
-
-
-
 import requests
 import pandas as pd
 class Firm:
