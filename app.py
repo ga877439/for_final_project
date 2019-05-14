@@ -3,6 +3,8 @@ from tkinter import ttk
 import tkinter.font as tkFont
 from tkinter import *
 
+## 注意，目前股票信息的網站內容可能會更改，有錯誤就要需要重新設定
+
 ratios_list = ['ROE', '流動比率', '速動比率', '資產負債比', '權益資產比', '負債與股東權益比率', '毛利率', '營業利益率', 
 	'現金創造力',  '償債力', '短期償債力', '現金流量資本支出比率', '每股現金流量比率', '股利支付比率']
 			   
